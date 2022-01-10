@@ -4,7 +4,7 @@
 int main(int argc, char** argv) {
     if(argc != 3) { cerr << "ERROR: Invalid input."; }
     ifstream init_file(argv[1]);
-    ifstream output_file(argv[2]);
+    ofstream output_file(argv[2]);
     if (!init_file) { cerr << "ERROR: Invalid input." << endl; exit(-1); }
     if (!output_file) { cerr << "ERROR: Invalid input." << endl; exit(-1); }
 

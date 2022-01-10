@@ -5,6 +5,8 @@
 #ifndef EXERCISE05_EX5_H
 #define EXERCISE05_EX5_H
 
+#include "Element.h"
+
 #include <fstream>
 #include <sstream>
 
@@ -12,10 +14,11 @@ using namespace std;
 
 class Ex5 {
 private:
-    double** xs, **tv;
-    int mu; // total x vectors. (i of xs matrix)
-    int n;  // total x elements. (j of xs matrix)
-    int m;  // total tv elements. (j of tv matrix)
+    double** xs; // variable-vectors. (mu x n)
+    double **tv; // target-vectors matrix. (mu x m)
+    int mu;      // total x vectors. (i of xs matrix)
+    int n;       // total x elements. (j of xs matrix)
+    int m;       // total tv elements. (j of tv matrix)
     int iter;
 public:
     Ex5(ifstream& ifs) {
@@ -49,10 +52,6 @@ public:
             i++;
         }
         generateTV();
-        int* pr = ParetoRanking(tv, mu, m);
-        for (int i = 0; i < m; i++) {
-            cout << pr[i] << " ";
-        }
     };
     int count_lines(ifstream& ifs) {
         string temp;
@@ -98,41 +97,51 @@ public:
             }
         }
     }
-    int* ParetoRanking(double **tv, int total_v, int v_size) {
-        /** an algorithm that takes a set of target-vectors (t.v) and calculates each vector's dimension.
-         * @param tv array of t.vs
-         * @param total_v total t.vs given
-         * @param v_size the size of each t.v
+    int* ParetoRanking(double **tv, int size, int dim) {
+        /** an algorithm that takes a set of target-vectors (tv) and calculates each tv RANK.
+         *  the RANK of a tv is the number of other vectors within his set that REIGN over him:
+         *      for every i:    tv[a][i] <= tv[b][i]
+         *      a j exists:     tv[a][j] < tv[b][j]
+         *      then tv j REIGNS over tv i.
          *
-         * @return 1-D array of integers, with the ith represents the ith t.v dimension.
+         * @param tv array of tvs.
+         * @param size total tvs given.
+         * @param dim dimension of each tv.
+         *
+         * @return 1-D array of integers, with the ith represents the ith tv dimension.
          */
 
-        int* dims = new int[total_v];
+        int* ranks = new int[size];
         bool cond1, cond2;
-        int c, dim;
+        int rank;
 
-        for (int i = 0; i < total_v; i++) { // check all tv.
+        for (int i = 0; i < size; i++) {
             cond1 = false;
             cond2 = true;
-            dim = 0;
-
-            for (int j = 0; j < total_v; j++) { // check tv[i] with all other vectors in his set.
-                if (i == j) { continue; }
-                c = 0;
-                for (int e = 0; e < v_size; e++) {
+            rank = 0;
+            for (int j = 0; j < size; j++) { // check tv[i] with all other vectors in his set.
+                if (i == j) { continue; } // don't check tv with itself.
+                for (int e = 0; e < dim; e++) {
                     if (tv[i][e] < tv[j][e]) { cond1 = true; }
                     else if (! (tv[i][e] <= tv[j][e])) { cond1 = false; }
                 }
-
-                if (cond1 and cond2) { // tv[i] reigns over tv[j]
-                    dim++;
+                if (cond1 and cond2) { // tv[j] reigns over tv[i], then dim of tv[i] increments.
+                    rank++;
                 }
             }
 
-            dims[i] = dim;
+            ranks[i] = rank;
         }
 
-        return dims;
+        return ranks;
+    }
+    void ElementsReordering(Element** element_arr, int size) {
+        Element* copy = new Element[size];
+        int* ranks = ParetoRanking()
+        for (int i = 0; i < size; i++) {
+
+        }
+
     }
 };
 
