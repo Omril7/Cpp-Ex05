@@ -7,6 +7,7 @@
 
 #include <fstream>
 #include <sstream>
+#include "Element.h"
 
 using namespace std;
 
@@ -14,8 +15,8 @@ class Ex5 {
 private:
     double** xs, **tv;
     int mu; // total x vectors. (i of xs matrix)
-    int n;  // total x elements. (j of xs matrix)
-    int m;  // total tv elements. (j of tv matrix)
+    int n;  // x vector's size. (j of xs matrix)
+    int m;  // tv vector's size. (j of tv matrix)
     int iter;
 public:
     Ex5(ifstream& ifs) {
@@ -49,10 +50,25 @@ public:
             i++;
         }
         generateTV();
-        int* pr = ParetoRanking(tv, mu, m);
-        for (int i = 0; i < m; i++) {
-            cout << pr[i] << " ";
+
+        Element** elements = new Element*[mu];
+        for(int i = 0; i < mu ; i ++) {
+            elements[i] = new Element(xs[i], tv[i], n, m);
         }
+        for(int i = 0; i < mu; i ++) { /// prints x vectors from elements array
+            elements[i]->printX();
+            cout << endl;
+        }
+        for(int i = 0; i < mu; i ++) { /// prints t vectors from elements array
+            elements[i]->printT();
+            cout << endl;
+        }
+
+        int* pr = ParetoRanking(tv, mu, m);
+        for(int i = 0; i < mu; i ++) {  /// update ranking of all elements on array
+            elements[i]->updateRank(pr[i]);
+        }
+
     };
     int count_lines(ifstream& ifs) {
         string temp;
@@ -99,50 +115,46 @@ public:
         }
     }
     int* ParetoRanking(double **tv, int total_v, int v_size) {
-        /** an algorithm that takes a set of target-vectors (t.v) and calculates each vector's dimension.
+        /** an algorithm that takes a set of target-vectors (t.v) and calculates each vector's ranks.
          * @param tv array of t.vs
          * @param total_v total t.vs given
          * @param v_size the size of each t.v
          *
-         * @return 1-D array of integers, with the ith represents the ith t.v dimension.
+         * @return 1-D array of integers, with the ith represents the ith t.v ranks.
          */
 
-        int* dims = new int[total_v];
+        int* ranks = new int[total_v];
         bool cond1, cond2;
-        int c, dim;
-
+        for (int c = 0; c < total_v; c++) {
+            ranks[c] = 0;
+        }
         for (int i = 0; i < total_v; i++) { // check all tv.
-            cond1 = false;
-            cond2 = true;
-            dim = 0;
-
-            for (int j = 0; j < total_v; j++) { // check tv[i] with all other vectors in his set.
-                if (i == j) { continue; }
-                c = 0;
+            for (int j = i+1; j < total_v; j++) { // check tv[i] with all other vectors in his set.
+                cond1 = false;
+                cond2 = true;
                 for (int e = 0; e < v_size; e++) {
                     if (tv[i][e] < tv[j][e]) { cond1 = true; }
-                    else if (! (tv[i][e] <= tv[j][e])) { cond1 = false; }
+                    if (tv[i][e] > tv[j][e]) { cond2 = false; }
                 }
 
-                if (cond1 and cond2) { // tv[i] reigns over tv[j]
-                    dim++;
+                if (cond1 && cond2) { // tv[i] reigns over tv[j]
+                    ranks[j]++;
+                }
+                if (!cond1 && !cond2) { // tv[j] reigns over tv[i]
+                    ranks[i]++;
                 }
             }
-
-            dims[i] = dim;
         }
 
-        return dims;
+        return ranks;
+    }
+
+    void ElementsReordering(Element* elements) {
+        for (int i = 0; i < mu; i++) {
+
+        }
     }
 };
 
 
 #endif //EXERCISE05_EX5_H
-
-
-//for(int i = 0; i < mu; i ++) {
-//    for(int e = 0; e < m; e ++) {
-//        cout << tv[i][e] << ' ';
-//    }
-//    cout << endl;
-//}
