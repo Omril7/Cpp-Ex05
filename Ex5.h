@@ -1,24 +1,24 @@
-//
-// Created by omri on 01/09/2022.
-//
-
 #ifndef EXERCISE05_EX5_H
 #define EXERCISE05_EX5_H
 
 #include <fstream>
 #include <sstream>
 #include <iterator>
+#include <cstdlib>
+#include <ctime>
 #include "Element.h"
 
 using namespace std;
 
 class Ex5 {
 private:
-    double** xs, **tv;
+    double** xs;
+    double** tv;
     int mu; // total x vectors. (i of xs matrix)
     int n;  // x vector's size. (j of xs matrix)
     int m;  // tv vector's size. (j of tv matrix)
     int iter;
+
 public:
     Ex5(ifstream& ifs) {
         string line;
@@ -30,38 +30,10 @@ public:
         istringstream(line) >> m;
         getline(ifs, line, ' ');
         istringstream(line) >> iter;
-        if(count_lines(ifs) != mu) {
-            quit();
-        }
-        getline(ifs, line);
-        xs = new double*[mu];
-        for(int i = 0; i < mu ; i ++ ) {
-            xs[i] = new double[n];
-        }
-        int i=0;
-        while(getline(ifs, line)) {
-            if (token_counter(line) != n) {
-                quit();
-            }
-            string tokens[n];
-            tokenizer(line, tokens);
-            for (int j = 0; j < n; j++) {
-                istringstream(tokens[j]) >> xs[i][j];
-            }
-            i++;
-        }
-        generateTV();
-
-//        Element* elements = new Element[mu];
-//        for(int i = 0; i < mu ; i ++) {
-//            elements[i] = Element(xs[i], tv[i], n, m);
-//        }
-//        ParetoSorting(&elements, mu);
-//        for(int i = 0; i < mu ; i ++) {
-//            elements[i].printT();
-//            cout << endl;
-//        }
-    };
+//        if(count_lines(ifs) != mu) { quit(); }
+        genXs(ifs);
+        genTv();
+    }
     int count_lines(ifstream& ifs) {
         string temp;
         int lines = 0;
@@ -94,7 +66,27 @@ public:
             i ++;
         }
     }
-    void generateTV() {
+    void genXs(ifstream& ifs) {
+        string line;
+        getline(ifs, line);
+        xs = new double*[mu];
+        for(int i = 0; i < mu ; i ++ ) {
+            xs[i] = new double[n];
+        }
+        int i=0;
+        while(getline(ifs, line)) {
+            if (token_counter(line) != n) {
+                quit();
+            }
+            string tokens[n];
+            tokenizer(line, tokens);
+            for (int j = 0; j < n; j++) {
+                istringstream(tokens[j]) >> xs[i][j];
+            }
+            i++;
+        }
+    }
+    void genTv() {
         tv = new double* [mu];
         for(int i = 0; i < mu; i ++) {
             tv[i] = new double[m];
@@ -106,8 +98,22 @@ public:
             }
         }
     }
+    double** genTv2(double** Xs) {
+        double** mytv = new double*[mu];
+        for(int i = 0; i < mu; i ++) {
+            mytv[i] = new double[m];
+            for(int e = 0; e < m; e ++) {
+                mytv[i][e] = 0;
+                for(int j = 0; j < n; j ++) {
+                    mytv[i][e] += ((Xs[i][j] - (e + 1)) * (Xs[i][j] - (e + 1)));
+                }
+            }
+        }
+        return mytv;
+    }
     int* ParetoRanking(double** tv, int total_v, int v_size) {
-        /** an algorithm that takes a set of target-vectors (t.v) and calculates each vector's ranks.
+        /** Algorithm which takes a set of target-vectors (tv) and calculates each vector's RANK.
+         *  The RANK of a tv is the number of tvs that REIGN
          * @param tv array of t.vs
          * @param total_v total t.vs given
          * @param v_size the size of each t.v
@@ -163,23 +169,74 @@ public:
             (*elements)[i] = cpy[i];
         }
     }
-    void ParetoSorting(Element** elements, int size) {
-        int* pr = ParetoRanking(tv, mu, m);
-        for(int i = 0; i < mu; i ++) {  /// update ranking of all elements on array
+    void ParetoSorting(Element** elements, double** tv, int size) {
+        int* pr = ParetoRanking(tv, size, m);
+        for(int i = 0; i < size; i ++) {  /// update ranking of all elements on array
             (*elements)[i].updateRank(pr[i]);
         }
-        ElementsReordering(elements, mu);
+        ElementsReordering(elements, size);
     }
+    void simulate() {
+        Element* elem;
+        Element* elem_temp;
+        Element* elem_concat;
+        double** xs_temp;
+        double** tv_temp;
+        double r;
 
+        elem = new Element[mu];
+        for (int i = 0; i < mu; i ++) {
+            elem[i] = Element(xs[i], tv[i], n, m);
+        }
 
-    void init() {
-        while(iter >0) {
+        int c = iter;
+        while (c > 0) {
+            cout << "fuck\n";
+            xs_temp = new double*[mu];
+            elem_temp = new Element[mu];
+            elem_concat = new Element[2 * mu];
 
+            srand((unsigned) time(0));
+            r = (double) (rand() % 100);
+            r /= 100;
 
-            iter --;
+            for (int i = 0; i < mu; i++) {
+                xs_temp[i] = new double[n];
+                for (int j = 0; j < n; j++) {
+                    (*xs_temp)[i] = elem->getX(i) + r;
+                }
+            }
+
+            tv_temp = genTv2(xs_temp);
+
+            for (int i = 0; i < mu; i++) {
+                elem_temp[i] = Element(xs_temp[i], tv_temp[i], n, m);
+            }
+
+            for (int i = 0; i < (2 * mu); i++) {
+                if (i < mu) {
+                    elem_concat[i] = elem[i];
+                }
+                else {
+                    elem_concat[i] = elem_temp[i - mu];
+                }
+            }
+
+            ParetoSorting(&elem_concat, tv_temp, 2 * mu);
+
+            for (int i = 0; i < mu; i++) {
+                elem[i] = elem_concat[i];
+            }
+
+            c--;
+        }
+
+        for(int i = 0; i < mu ; i ++) {
+            elem[i].printT();
+            cout << endl;
         }
     }
 };
 
 
-#endif //EXERCISE05_EX5_H
+#endif

@@ -10,6 +10,6 @@ int main(int argc, char** argv) {
 
     Ex5* ex5 = new Ex5(init_file);
 
-    Element e;
+    ex5->simulate();
     return 0;
 }

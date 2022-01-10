@@ -5,6 +5,9 @@
 #ifndef EXERCISE05_ELEMENT_H
 #define EXERCISE05_ELEMENT_H
 
+#include <iomanip>
+
+using namespace std;
 
 class Element {
 private:
@@ -31,31 +34,13 @@ public:
         rank = 0;
         flag = false;
     }
-//    Element& operator=(Element& other) {
-//        if(this != &other) {
-//            x = other.x;
-//            t = other.t;
-//            rank = other.rank;
-//            x_size = other.x_size;
-//            t_size = other.t_size;
-//        }
-//        return *this;
-//    }
     void updateRank(int r) {
         rank = r;
     }
-    void printX(){
-        for(int i = 0; i < x_size ; i ++) {
-            std::cout << x[i] << ' ';
-        }
-    }
     void printT(){
         for(int i = 0; i < t_size ; i ++) {
-            std::cout << t[i] << ' ';
+            print_double(t[i]); cout << ' ';
         }
-    }
-    void printRank(){
-        std::cout << rank;
     }
     int getRank() {
         return rank;
@@ -65,6 +50,19 @@ public:
     }
     void setFlag(bool b) {
         flag = b;
+    }
+    double getX(int i) { return x[i]; }
+    void print_double(double d){
+        stringstream ss;
+        ss << fixed << setprecision(6) << d;
+        string s = ss.str();
+        s = s.substr(0, s.find_last_not_of('0') + 1);
+
+        if (s.find('.') == (s.size() - 1)) {
+            s = s.substr(0, (s.size() - 1));
+        }
+
+        cout << s;
     }
 };
 
