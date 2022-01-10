@@ -20,18 +20,23 @@ private:
     int iter;
 
 public:
-    Ex5(ifstream& ifs) {
+    Ex5(ifstream& ifs, string init_filename) {
         string line;
-        getline(ifs, line, ' ');
-        istringstream(line) >> mu;
-        getline(ifs, line, ' ');
-        istringstream(line) >> n;
-        getline(ifs, line, ' ');
-        istringstream(line) >> m;
-        getline(ifs, line, ' ');
-        istringstream(line) >> iter;
-        if(count_lines(ifs) != mu) { quit(); }
-        genXs(ifs);
+        for (int i = 0; i < 4; i++) {
+            if (getline(ifs, line, ' ')) {
+                switch (i) {
+                    case 0: istringstream(line) >> mu; break;
+                    case 1: istringstream(line) >> n; break;
+                    case 2: istringstream(line) >> m; break;
+                    case 3: istringstream(line) >> iter; break;
+                }
+            }
+            else {
+                cerr << "ERROR: simulation definition in " << init_filename << " is invalid\n"; exit(-1);
+            }
+        }
+//        if(count_lines(ifs) != mu) { quit(); }
+        genXs(ifs, init_filename);
         genTv();
     }
     int count_lines(ifstream& ifs) {
@@ -55,7 +60,6 @@ public:
         }
         return i;
     }
-    void quit() { cerr << "ERROR: Invalid input."; exit(-1); }
     void tokenizer(string s, string *tokens) {
         stringstream ss;
         string buffer;
@@ -66,7 +70,7 @@ public:
             i ++;
         }
     }
-    void genXs(ifstream& ifs) {
+    void genXs(ifstream& ifs, string init_filename) {
         string line;
         getline(ifs, line);
         xs = new double*[mu];
@@ -76,7 +80,7 @@ public:
         int i=0;
         while(getline(ifs, line)) {
             if (token_counter(line) != n) {
-                quit();
+                cerr << "ERROR: population definition in " << init_filename << " at line " << i << " is invalid\n"; exit(-1);
             }
             string tokens[n];
             tokenizer(line, tokens);
@@ -188,7 +192,7 @@ public:
             elem[i] = Element(xs[i], tv[i], n, m);
         }
 
-        int c = 1000;
+        int c = iter;
         while (c > 0) {
             xs_temp = new double*[2 * mu];
             elem_temp = new Element[2 * mu];
