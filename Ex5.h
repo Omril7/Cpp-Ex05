@@ -7,6 +7,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <iterator>
 #include "Element.h"
 
 using namespace std;
@@ -51,24 +52,15 @@ public:
         }
         generateTV();
 
-        Element** elements = new Element*[mu];
-        for(int i = 0; i < mu ; i ++) {
-            elements[i] = new Element(xs[i], tv[i], n, m);
-        }
-        for(int i = 0; i < mu; i ++) { /// prints x vectors from elements array
-            elements[i]->printX();
-            cout << endl;
-        }
-        for(int i = 0; i < mu; i ++) { /// prints t vectors from elements array
-            elements[i]->printT();
-            cout << endl;
-        }
-
-        int* pr = ParetoRanking(tv, mu, m);
-        for(int i = 0; i < mu; i ++) {  /// update ranking of all elements on array
-            elements[i]->updateRank(pr[i]);
-        }
-
+//        Element* elements = new Element[mu];
+//        for(int i = 0; i < mu ; i ++) {
+//            elements[i] = Element(xs[i], tv[i], n, m);
+//        }
+//        ParetoSorting(&elements, mu);
+//        for(int i = 0; i < mu ; i ++) {
+//            elements[i].printT();
+//            cout << endl;
+//        }
     };
     int count_lines(ifstream& ifs) {
         string temp;
@@ -114,7 +106,7 @@ public:
             }
         }
     }
-    int* ParetoRanking(double **tv, int total_v, int v_size) {
+    int* ParetoRanking(double** tv, int total_v, int v_size) {
         /** an algorithm that takes a set of target-vectors (t.v) and calculates each vector's ranks.
          * @param tv array of t.vs
          * @param total_v total t.vs given
@@ -148,10 +140,43 @@ public:
 
         return ranks;
     }
+    void ElementsReordering(Element** elements, int size) {
+        Element cpy[size];
+        int minRank;
+        for(int i = 0; i < size; i ++) {
+            minRank = size;
+            for(int j = 0; j < size; j ++) {
+                if((*elements)[j].getRank() < minRank && (! (*elements)[j].getFlag())) {
+                    minRank = (*elements)[j].getRank();
+                }
+            }
+            int tempRank = minRank;
+            for(int j = 0; j < size; j ++) {
+                if( ((*elements)[j].getRank() == tempRank) && (! (*elements)[j].getFlag()) ) {
+                    cpy[i] = (*elements)[j];
+                    (*elements)[j].setFlag(true);
+                    break;
+                }
+            }
+        }
+        for(int i = 0; i < size; i ++) {
+            (*elements)[i] = cpy[i];
+        }
+    }
+    void ParetoSorting(Element** elements, int size) {
+        int* pr = ParetoRanking(tv, mu, m);
+        for(int i = 0; i < mu; i ++) {  /// update ranking of all elements on array
+            (*elements)[i].updateRank(pr[i]);
+        }
+        ElementsReordering(elements, mu);
+    }
 
-    void ElementsReordering(Element* elements) {
-        for (int i = 0; i < mu; i++) {
 
+    void init() {
+        while(iter >0) {
+
+
+            iter --;
         }
     }
 };

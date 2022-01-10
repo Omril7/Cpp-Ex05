@@ -13,14 +13,34 @@ private:
     int rank;
     int x_size;
     int t_size;
+    bool flag;
 public:
+    Element() {
+        x = NULL;
+        t = NULL;
+        x_size = 0;
+        t_size = 0;
+        rank = 0;
+        flag = false;
+    }
     Element(double* x, double* t, int x_size, int t_size) {
         this->x = x;
         this->t = t;
         this->x_size = x_size;
         this->t_size = t_size;
         rank = 0;
+        flag = false;
     }
+//    Element& operator=(Element& other) {
+//        if(this != &other) {
+//            x = other.x;
+//            t = other.t;
+//            rank = other.rank;
+//            x_size = other.x_size;
+//            t_size = other.t_size;
+//        }
+//        return *this;
+//    }
     void updateRank(int r) {
         rank = r;
     }
@@ -36,6 +56,15 @@ public:
     }
     void printRank(){
         std::cout << rank;
+    }
+    int getRank() {
+        return rank;
+    }
+    bool getFlag() {
+        return flag;
+    }
+    void setFlag(bool b) {
+        flag = b;
     }
 };
 
