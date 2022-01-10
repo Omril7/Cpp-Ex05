@@ -37,10 +37,18 @@ public:
     void updateRank(int r) {
         rank = r;
     }
-    void printT(){
+    string toString(){
+        stringstream ss;
+        string s, buffer;
         for(int i = 0; i < t_size ; i ++) {
-            print_double(t[i]); cout << ' ';
+            ss << t[i];
+            ss >> buffer;
+            s.append(buffer);
+            if(i < t_size-1) {
+                s.append(" ");
+            }
         }
+        return s;
     }
     int getRank() {
         return rank;

@@ -30,7 +30,7 @@ public:
         istringstream(line) >> m;
         getline(ifs, line, ' ');
         istringstream(line) >> iter;
-//        if(count_lines(ifs) != mu) { quit(); }
+        if(count_lines(ifs) != mu) { quit(); }
         genXs(ifs);
         genTv();
     }
@@ -98,9 +98,9 @@ public:
             }
         }
     }
-    double** genTv2(double** Xs) {
-        double** mytv = new double*[mu];
-        for(int i = 0; i < mu; i ++) {
+    double** genTv2(double** Xs, int size) {
+        double** mytv = new double*[size];
+        for(int i = 0; i < size; i ++) {
             mytv[i] = new double[m];
             for(int e = 0; e < m; e ++) {
                 mytv[i][e] = 0;
@@ -176,12 +176,11 @@ public:
         }
         ElementsReordering(elements, size);
     }
-    void simulate() {
-        Element* elem;
-        Element* elem_temp;
-        Element* elem_concat;
-        double** xs_temp;
-        double** tv_temp;
+    void simulate(ofstream& output_file) {
+        Element* elem;      /// mu size
+        Element* elem_temp; /// 2*mu size
+        double** xs_temp;   /// 2*mu size
+        double** tv_temp;   /// 2*mu size
         double r;
 
         elem = new Element[mu];
@@ -189,51 +188,45 @@ public:
             elem[i] = Element(xs[i], tv[i], n, m);
         }
 
-        int c = iter;
+        int c = 1000;
         while (c > 0) {
-            cout << "fuck\n";
-            xs_temp = new double*[mu];
-            elem_temp = new Element[mu];
-            elem_concat = new Element[2 * mu];
+            xs_temp = new double*[2 * mu];
+            elem_temp = new Element[2 * mu];
 
             srand((unsigned) time(0));
-            r = (double) (rand() % 100);
-            r /= 100;
 
-            for (int i = 0; i < mu; i++) {
+            for (int i = 0; i < 2 * mu; i++) {
                 xs_temp[i] = new double[n];
                 for (int j = 0; j < n; j++) {
-                    (*xs_temp)[i] = elem->getX(i) + r;
+                    if (i < mu) {
+                        xs_temp[i][j] = elem[i].getX(j);
+                    }
+                    else {
+                        r = (double) (rand() % 100);
+                        r /= 100;
+                        xs_temp[i][j] = elem->getX(i) + r;
+                    }
                 }
             }
 
-            tv_temp = genTv2(xs_temp);
+            tv_temp = genTv2(xs_temp, 2 * mu);
 
-            for (int i = 0; i < mu; i++) {
+            for (int i = 0; i < 2 * mu; i++) {
                 elem_temp[i] = Element(xs_temp[i], tv_temp[i], n, m);
             }
 
-            for (int i = 0; i < (2 * mu); i++) {
-                if (i < mu) {
-                    elem_concat[i] = elem[i];
-                }
-                else {
-                    elem_concat[i] = elem_temp[i - mu];
-                }
-            }
-
-            ParetoSorting(&elem_concat, tv_temp, 2 * mu);
+            ParetoSorting(&elem_temp, tv_temp, 2 * mu);
 
             for (int i = 0; i < mu; i++) {
-                elem[i] = elem_concat[i];
+                elem[i] = elem_temp[i];
             }
-
             c--;
         }
-
         for(int i = 0; i < mu ; i ++) {
-            elem[i].printT();
-            cout << endl;
+            output_file << elem[i].toString();
+            if(i < mu-1) {
+                output_file << endl;
+            }
         }
     }
 };
