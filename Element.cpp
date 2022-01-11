@@ -23,6 +23,7 @@ string Element::toString(){
     stringstream ss;
     string s, buffer;
     for(int i = 0; i < t_size ; i ++) {
+        ss.clear();
         ss << t[i];
         ss >> buffer;
         s.append(buffer);
