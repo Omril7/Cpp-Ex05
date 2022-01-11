@@ -1,4 +1,3 @@
-
 #include "Ex5.h"
 
 Ex5::Ex5(ifstream& ifs, string init_filename) {
@@ -135,8 +134,6 @@ void Ex5::simulate(ofstream& output_file) {
     }
 
     int c = iter;
-    c = 1000;
-
     while (c > 0) {
         xs_temp = new double*[2 * mu];
         elem_temp = new Element[2 * mu];
@@ -150,8 +147,8 @@ void Ex5::simulate(ofstream& output_file) {
                     xs_temp[i][j] = elem[i].getX(j);
                 }
                 else {
-                    r = (double) (rand() % 100);
-                    r /= 100;
+                    r = (double) (rand() % 1000);
+                    r /= 1000;
                     xs_temp[i][j] = elem->getX(i) + r;
                 }
             }

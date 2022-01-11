@@ -32,7 +32,7 @@ public:
     template<typename T> int* ParetoRankingGen(T** tv, int total_v, int v_size) {
         /** Algorithm which takes a set of target-vectors (tv) and calculates each vector's RANK.
          *  The RANK of a tv is the number of tvs that REIGN
-         *  ONLY OBJECTS (T) THAT HAVE '>' AND '<' OPERATORS CAN USE THIS GENERIC METHOD
+         *  '<' and '>' operators must be overloaded for T type.
          * @param tv array of t.vs
          * @param total_v total t.vs given
          * @param v_size the size of each t.v
@@ -67,7 +67,7 @@ public:
     void ElementsReordering(Element** elements, int size);
     template<typename T> void ParetoSortingGen(Element** elements, T** tv, int size) {
         /**
-         * ONLY OBJECTS (T) THAT HAVE '>' AND '<' OPERATORS CAN USE THIS GENERIC METHOD
+         * '<' and '>' operators must be overloaded for T type.
          **/
         int* pr = ParetoRankingGen<T>(tv, size, m);
         for(int i = 0; i < size; i ++) {  /// update ranking of all elements on array
