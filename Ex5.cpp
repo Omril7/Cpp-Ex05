@@ -16,7 +16,10 @@ Ex5::Ex5(ifstream& ifs, string init_filename) {
             cerr << "ERROR: simulation definition in " << init_filename << " is invalid\n"; exit(-1);
         }
     }
-    if(count_lines(ifs) != mu) { cerr << "ERROR: simulation definition in " << init_filename << " is invalid\n"; exit(-1); }
+    if ((count_lines(ifs) != mu) or (mu > 10000) or (m >= n) or (n > 100)) {
+        cerr << "ERROR: simulation definition in " << init_filename << " is invalid\n";
+        exit(-1);
+    }
     genXs(ifs, init_filename);
     genTv();
 }
@@ -96,41 +99,6 @@ double** Ex5::genTv2(double** Xs, int size) {
     }
     return mytv;
 }
-int* Ex5::ParetoRanking(double** tv, int total_v, int v_size) {
-    /** Algorithm which takes a set of target-vectors (tv) and calculates each vector's RANK.
-     *  The RANK of a tv is the number of tvs that REIGN
-     * @param tv array of t.vs
-     * @param total_v total t.vs given
-     * @param v_size the size of each t.v
-     *
-     * @return 1-D array of integers, with the ith represents the ith t.v ranks.
-     */
-
-    int* ranks = new int[total_v];
-    bool cond1, cond2;
-    for (int c = 0; c < total_v; c++) {
-        ranks[c] = 0;
-    }
-    for (int i = 0; i < total_v; i++) { // check all tv.
-        for (int j = i+1; j < total_v; j++) { // check tv[i] with all other vectors in his set.
-            cond1 = false;
-            cond2 = true;
-            for (int e = 0; e < v_size; e++) {
-                if (tv[i][e] < tv[j][e]) { cond1 = true; }
-                if (tv[i][e] > tv[j][e]) { cond2 = false; }
-            }
-
-            if (cond1 && cond2) { // tv[i] reigns over tv[j]
-                ranks[j]++;
-            }
-            if (!cond1 && !cond2) { // tv[j] reigns over tv[i]
-                ranks[i]++;
-            }
-        }
-    }
-
-    return ranks;
-}
 void Ex5::ElementsReordering(Element** elements, int size) {
     Element cpy[size];
     int minRank;
@@ -153,13 +121,6 @@ void Ex5::ElementsReordering(Element** elements, int size) {
     for(int i = 0; i < size; i ++) {
         (*elements)[i] = cpy[i];
     }
-}
-void Ex5::ParetoSorting(Element** elements, double** tv, int size) {
-    int* pr = ParetoRanking(tv, size, m);
-    for(int i = 0; i < size; i ++) {  /// update ranking of all elements on array
-        (*elements)[i].updateRank(pr[i]);
-    }
-    ElementsReordering(elements, size);
 }
 void Ex5::simulate(ofstream& output_file) {
     Element* elem;      /// mu size
@@ -200,7 +161,7 @@ void Ex5::simulate(ofstream& output_file) {
             elem_temp[i] = Element(xs_temp[i], tv_temp[i], n, m);
         }
 
-        ParetoSorting(&elem_temp, tv_temp, 2 * mu);
+        ParetoSortingGen<double>(&elem_temp, tv_temp, 2 * mu);
 
         for (int i = 0; i < mu; i++) {
             elem[i] = elem_temp[i];

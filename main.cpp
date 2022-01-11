@@ -1,6 +1,6 @@
-#include <iostream>
 
 #include "Ex5.h"
+
 int main(int argc, char** argv) {
     if (argc != 3) { cerr << "ERROR: Invalid input." << endl; exit(-1); }
     ifstream init_file(argv[1]);

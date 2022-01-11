@@ -7,6 +7,7 @@
 #include <iterator>
 #include <cstdlib>
 #include <ctime>
+
 #include "Element.h"
 
 using namespace std;
@@ -28,9 +29,52 @@ public:
     void genXs(ifstream& ifs, string init_filename);
     void genTv();
     double** genTv2(double** Xs, int size);
-    int* ParetoRanking(double** tv, int total_v, int v_size);
+    template<typename T> int* ParetoRankingGen(T** tv, int total_v, int v_size) {
+        /** Algorithm which takes a set of target-vectors (tv) and calculates each vector's RANK.
+         *  The RANK of a tv is the number of tvs that REIGN
+         *  ONLY OBJECTS (T) THAT HAVE '>' AND '<' OPERATORS CAN USE THIS GENERIC METHOD
+         * @param tv array of t.vs
+         * @param total_v total t.vs given
+         * @param v_size the size of each t.v
+         *
+         * @return 1-D array of integers, with the ith represents the ith t.v ranks.
+         */
+
+        int *ranks = new int[total_v];
+        bool cond1, cond2;
+        for (int c = 0; c < total_v; c++) {
+            ranks[c] = 0;
+        }
+        for (int i = 0; i < total_v; i++) { // check all tv.
+            for (int j = i + 1; j < total_v; j++) { // check tv[i] with all other vectors in his set.
+                cond1 = false;
+                cond2 = true;
+                for (int e = 0; e < v_size; e++) {
+                    if (tv[i][e] < tv[j][e]) { cond1 = true; }
+                    if (tv[i][e] > tv[j][e]) { cond2 = false; }
+                }
+
+                if (cond1 && cond2) { // tv[i] reigns over tv[j]
+                    ranks[j]++;
+                }
+                if (!cond1 && !cond2) { // tv[j] reigns over tv[i]
+                    ranks[i]++;
+                }
+            }
+        }
+        return ranks;
+    };
     void ElementsReordering(Element** elements, int size);
-    void ParetoSorting(Element** elements, double** tv, int size);
+    template<typename T> void ParetoSortingGen(Element** elements, T** tv, int size) {
+        /**
+         * ONLY OBJECTS (T) THAT HAVE '>' AND '<' OPERATORS CAN USE THIS GENERIC METHOD
+         **/
+        int* pr = ParetoRankingGen<T>(tv, size, m);
+        for(int i = 0; i < size; i ++) {  /// update ranking of all elements on array
+            (*elements)[i].updateRank(pr[i]);
+        }
+        ElementsReordering(elements, size);
+    };
     void simulate(ofstream& output_file);
 };
 
