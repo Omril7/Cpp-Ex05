@@ -135,6 +135,8 @@ void Ex5::simulate(ofstream& output_file) {
     }
 
     int c = iter;
+    c = 1000;
+
     while (c > 0) {
         xs_temp = new double*[2 * mu];
         elem_temp = new Element[2 * mu];
