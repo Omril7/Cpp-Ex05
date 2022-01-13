@@ -133,15 +133,16 @@ void Ex5::simulate(ofstream& output_file) {
         elem[i] = Element(xs[i], tv[i], n, m);
     }
 
+    xs_temp = new double*[2 * mu];
+    for (int i = 0; i < 2 * mu; i++) {
+        xs_temp[i] = new double[n];
+    }
+    elem_temp = new Element[2 * mu];
+
     int c = iter;
     while (c > 0) {
-        xs_temp = new double*[2 * mu];
-        elem_temp = new Element[2 * mu];
-
         srand((unsigned) time(0));
-
         for (int i = 0; i < 2 * mu; i++) {
-            xs_temp[i] = new double[n];
             for (int j = 0; j < n; j++) {
                 if (i < mu) {
                     xs_temp[i][j] = elem[i].getX(j);
