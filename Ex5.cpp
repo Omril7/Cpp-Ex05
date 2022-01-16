@@ -12,11 +12,11 @@ Ex5::Ex5(ifstream& ifs, string init_filename) {
             }
         }
         else {
-            cerr << "ERROR: simulation definition in " << init_filename << " is invalid\n"; exit(-1);
+            cerr << "ERROR: population definition in " << init_filename << " is invalid\n"; exit(-1);
         }
     }
     if ((count_lines(ifs) != mu) or (mu > 10000) or (m >= n) or (n > 100)) {
-        cerr << "ERROR: simulation definition in " << init_filename << " is invalid\n";
+        cerr << "ERROR: population definition in " << init_filename << " is invalid\n";
         exit(-1);
     }
     genXs(ifs, init_filename);
@@ -63,7 +63,7 @@ void Ex5::genXs(ifstream& ifs, string init_filename) {
     int i=0;
     while (getline(ifs, line)) {
         if (token_counter(line) != n) {
-            cerr << "ERROR: population definition in " << init_filename << " at line " << i << " is invalid\n"; exit(-1);
+            cerr << "ERROR: population definition in " << init_filename << " at line " << i+2 << " is invalid\n"; exit(-1);
         }
         string tokens[n];
         tokenizer(line, tokens);
